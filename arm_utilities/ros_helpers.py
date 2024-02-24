@@ -45,7 +45,7 @@ def wait_for(func, warn_after: Optional[int] = 10, name: Optional[str] = ""):
 
     start_t = time.time()
 
-    while not func() and not rclpy.ok():
+    while not func():
         if warn_after is not None and time.time() - start_t > warn_after:
             warning = f"still waiting after {warn_after}s"
             if name:

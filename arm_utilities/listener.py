@@ -28,7 +28,6 @@ class Listener:
         self.topic_name = topic_name
         self.subscriber = node.create_subscription(topic_type, topic_name, self.callback, qos, **kwargs)
         self.custom_callback = callback
-        self.get(wait_for_data)
 
     def callback(self, msg):
         with self.lock:
