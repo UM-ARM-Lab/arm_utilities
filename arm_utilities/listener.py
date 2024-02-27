@@ -4,12 +4,13 @@ from copy import deepcopy
 from rclpy.node import Node
 from threading import Lock
 from rclpy import logging
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 
 logger = logging.get_logger("Listener")
 
 
 class Listener:
-    def __init__(self, node: Node, topic_type, topic_name, qos=10, **kwargs):
+    def __init__(self, node: Node, topic_type, topic_name, qos=10):
         """
         Listener is a wrapper around a subscriber where the callback simply records the latest msg.
 
@@ -29,14 +30,14 @@ class Listener:
         self.event = threading.Event()
 
         self.topic_name = topic_name
-        self.subscriber = node.create_subscription(topic_type, topic_name, self.callback, qos, **kwargs)
+        self.callback_group = MutuallyExclusiveCallbackGroup()
+        self.subscriber = node.create_subscription(topic_type, topic_name, self.callback, qos, callback_group=self.callback_group)
 
     def callback(self, msg):
         with self.lock:
             self.data = msg
             if not self.event.is_set():
                 self.event.set()
-                logger.info(f"Received message on {self.topic_name}")
 
     def get(self, block_until_data=True):
         """
