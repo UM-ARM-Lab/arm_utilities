@@ -1,12 +1,15 @@
+import threading
 from copy import deepcopy
+
 from rclpy.node import Node
 from threading import Lock
+from rclpy import logging
 
-from arm_utilities.ros_helpers import wait_for
+logger = logging.get_logger("Listener")
 
 
 class Listener:
-    def __init__(self, node: Node, topic_type, topic_name, wait_for_data=False, callback=None, qos=10, **kwargs):
+    def __init__(self, node: Node, topic_type, topic_name, qos=10, **kwargs):
         """
         Listener is a wrapper around a subscriber where the callback simply records the latest msg.
 
@@ -19,21 +22,21 @@ class Listener:
             topic_name:      name of topic to subscribe to
             topic_type: type of message received on topic
             wait_for_data:  block constructor until a message has been received
-            callback: optional callback to be called on the data as we receive it
         """
 
         self.data = None
         self.lock = Lock()
+        self.event = threading.Event()
 
         self.topic_name = topic_name
         self.subscriber = node.create_subscription(topic_type, topic_name, self.callback, qos, **kwargs)
-        self.custom_callback = callback
 
     def callback(self, msg):
         with self.lock:
             self.data = msg
-            if self.custom_callback is not None:
-                self.custom_callback(self.data)
+            if not self.event.is_set():
+                self.event.set()
+                logger.info(f"Received message on {self.topic_name}")
 
     def get(self, block_until_data=True):
         """
@@ -43,7 +46,8 @@ class Listener:
             block_until_data (bool): block if no message has been received yet.
                                      Guarantees a msg is returned (not None)
         """
-        wait_for(lambda: not (block_until_data and self.data is None), 10, f"Listener({self.topic_name})")
+        if block_until_data:
+            self.event.wait()
 
         with self.lock:
             return deepcopy(self.data)
