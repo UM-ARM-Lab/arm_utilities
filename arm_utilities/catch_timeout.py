@@ -1,3 +1,4 @@
+""" Functions that let you call a long blocking function with a timeout, using signals & exceptions. """
 import signal
 from typing import Callable, Optional
 

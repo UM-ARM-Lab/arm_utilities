@@ -1,7 +1,14 @@
 # arm_utilities
 C++ and Python utilities used in lab projects. Renamed from the old name, `arc_utilities`.
 
-[![Build Status](https://travis-ci.com/UM-ARM-Lab/arc_utilities.svg?branch=master)](https://travis-ci.com/UM-ARM-Lab/arc_utilities)
+# Rough list of utilities
+
+- Converting between `geometry_msgs.Transform` and `np.array` types
+  - `numpy_conversions.py`
+- Stopping long blocking functions on a timeout
+  - `catch_timeout.py`
+- Getting the latest message on a topic, assuming a multi-threaded rclpy setup.
+  - `listener.py`
 
 # ROS 2 Upgrade
 
