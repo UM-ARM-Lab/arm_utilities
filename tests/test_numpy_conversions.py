@@ -20,6 +20,8 @@ def test_rot_mat_to_quat():
     expected = np.array([0., 0., 0.70710678, 0.70710678])
     q = rot_mat_to_quat(mat)
     assert np.allclose([q.x, q.y, q.z, q.w], expected)
+
+
 def test_transform_to_mat():
     t = Transform()
     t.translation.x = 1.
@@ -37,7 +39,10 @@ def test_mat_to_transform():
     mat = np.array([[0, -1, 0, 1], [1, 0, 0, 2], [0, 0, 1, 3], [0, 0, 0, 1]], dtype=float)
     expected = np.array([1., 2., 3., 0., 0., 0.70710678, 0.70710678], dtype=float)
     t = mat_to_transform(mat)
-    assert np.allclose([t.translation.x, t.translation.y, t.translation.z, t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w], expected)
+    assert np.allclose(
+        [t.translation.x, t.translation.y, t.translation.z, t.rotation.x, t.rotation.y, t.rotation.z, t.rotation.w],
+        expected)
+
 
 def test_to_and_from_rot_mat():
     rot_mat = np.array([[0, -1, 0], [1, 0, 0], [0, 0, 1]], dtype=float)
