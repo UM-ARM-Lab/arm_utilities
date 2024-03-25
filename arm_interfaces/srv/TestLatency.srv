@@ -1,3 +1,5 @@
 std_msgs/Header header
+string client_name
 ---
 std_msgs/Header received
+string server_name
