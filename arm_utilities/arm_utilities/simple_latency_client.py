@@ -25,7 +25,7 @@ def main():
     logger.info("Service is available")
 
     one_way_times = []
-    for i in range(50):
+    for i in range(25):
         logger.info(f"Requesting latency test {i}")
         req = TestLatency.Request()
         t1 = node.get_clock().now().to_msg()
@@ -44,13 +44,18 @@ def main():
     client_name = socket.gethostname()
     server_name = res.server_name
 
-    plt.figure()
+    out_img = f"latency_{client_name}_to_{server_name}.png"
+    logger.info(f"Saving histogram to {out_img}")
+
+    plt.style.use("big")
+    plt.figure(figsize=(7, 4))
     plt.title(f"Latency between {client_name} {server_name}")
     plt.xlabel("Time (ms)")
     plt.ylabel("Frequency")
     plt.hist(one_way_times)
-    plt.savefig(f"latency_{client_name}_to_{server_name}.png")
-    plt.show()
+    plt.savefig(out_img, bbox_inches="tight")
+
+    # plt.show()
 
     rclpy.shutdown()
 
