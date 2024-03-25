@@ -11,13 +11,14 @@ class SimpleLatencyServer(Node):
     def __init__(self):
         super().__init__("simple_latency_server")
         self.server = self.create_service(TestLatency, 'test_latency', self.test_latency)
+        self.get_logger().info("Server is ready to accept requests.")
 
     def test_latency(self, req: TestLatency.Request, res: TestLatency.Response):
-        print("=" * 20)
-        print(req.client_name)
-        print(req.header.stamp)
+        self.get_logger().info("=" * 20)
+        self.get_logger().info(f"{req.client_name}")
+        self.get_logger().info(f"{req.header.stamp}")
         res.server_name = socket.gethostname()
-        res.received = self.get_clock().now().to_msg()
+        res.received.stamp = self.get_clock().now().to_msg()
         return res
 
 

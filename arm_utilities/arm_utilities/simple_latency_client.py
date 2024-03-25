@@ -2,25 +2,31 @@
 import socket
 from time import sleep
 
+from arm_interfaces.srv import TestLatency
 from matplotlib import pyplot as plt
 
-from rclpy.node import Node
 import rclpy
-from arm_interfaces.srv import TestLatency
+from rclpy.node import Node
 
 
 def main():
     rclpy.init()
 
     node = Node("simple_latency_client")
+    logger = node.get_logger()
 
     client = node.create_client(TestLatency, 'test_latency')
+
+    logger.info("Waiting for service...")
 
     while not client.wait_for_service(timeout_sec=1.0):
         pass
 
+    logger.info("Service is available")
+
     one_way_times = []
-    for _ in range(50):
+    for i in range(50):
+        logger.info(f"Requesting latency test {i}")
         req = TestLatency.Request()
         t1 = node.get_clock().now().to_msg()
 
@@ -33,16 +39,17 @@ def main():
         one_way_time_ms = round_trip_tim_ms / 2
         one_way_times.append(one_way_time_ms)
 
-        sleep(0.1)
+        sleep(0.25)
 
     client_name = socket.gethostname()
     server_name = res.server_name
 
     plt.figure()
-    plt.title(f"One-way latency {client_name}->{server_name}")
+    plt.title(f"Latency between {client_name} {server_name}")
     plt.xlabel("Time (ms)")
     plt.ylabel("Frequency")
     plt.hist(one_way_times)
+    plt.savefig(f"latency_{client_name}_to_{server_name}.png")
     plt.show()
 
     rclpy.shutdown()

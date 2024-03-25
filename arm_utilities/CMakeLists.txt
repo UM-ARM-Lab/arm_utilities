@@ -55,6 +55,12 @@ install(
 )
 
 ament_python_install_package(${PROJECT_NAME})
+# also install rospy nodes so we can ros2 run them
+install(PROGRAMS
+        ${PROJECT_NAME}/simple_latency_client.py
+        ${PROJECT_NAME}/simple_latency_server.py
+        DESTINATION lib/${PROJECT_NAME})
+
 
 ament_export_dependencies(${THIS_PACKAGE_INCLUDE_DEPENDS})
 ament_export_include_directories(include)
