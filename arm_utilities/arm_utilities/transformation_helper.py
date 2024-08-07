@@ -1,4 +1,6 @@
 import numpy as np
+from transforms3d.quaternions import quat2mat, mat2quat
+from geometry_msgs.msg import Transform
 
 
 def np_tf_inv(mat):
@@ -44,3 +46,44 @@ def vector3_to_spherical(xyz):
     else:
         theta = 0
     return [r, phi, theta]
+
+
+def build_mat(translation, quaternion):
+    """
+    @param translation: list-like object [x, y, z]
+    @param quaternion: list-like object [x, y, z, w]
+    @return: 4x4 numpy array
+    """
+    mat = np.eye(4)
+    mat[0:3, 0:3] = quat2mat(quaternion)
+    mat[0:3, 3] = translation
+    return mat
+
+
+def build_mat_from_transform(transform: Transform):
+    """
+    @param transform: geometry_msgs.msg.Transform
+    @return: 4x4 numpy array
+    """
+    translation = [transform.translation.x, transform.translation.y, transform.translation.z]
+    quaternion = [transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w]
+    return build_mat(translation, quaternion)
+
+
+def get_vec7_from_transform(transform: Transform):
+    """
+    @param transform: geometry_msgs.msg.Transform
+    @return: list of [x, y, z, qx, qy, qz, qw]
+    """
+    return [transform.translation.x, transform.translation.y, transform.translation.z,
+            transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w]
+
+
+def extract_from_matrix(mat):
+    """
+    @param mat: 4x4 numpy array
+    @return: list of translation [x, y, z] and quaternion [x, y, z, w]
+    """
+    translation = mat[0:3, 3]
+    quaternion = mat2quat(mat[0:3, 0:3])
+    return translation, quaternion

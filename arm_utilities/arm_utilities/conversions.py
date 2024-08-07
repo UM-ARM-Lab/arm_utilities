@@ -3,9 +3,9 @@ from typing import Union, List, Dict
 import re
 import numpy as np
 
-import rospy
-from geometry_msgs.msg import Pose, PoseStamped, Quaternion, Point, PointStamped
-from tf.transformations import quaternion_from_euler
+import rclpy
+from geometry_msgs.msg import Pose, PoseStamped, Quaternion, Point, PointStamped, Transform, TransformStamped
+from transforms3d.euler import euler2quat
 
 
 def parse_file_size(s: str):
@@ -48,40 +48,50 @@ def normalize_quaternion(quaternion: Union[List[int], Quaternion]):
         raise NotImplementedError()
 
 
-def convert_to_pose_msg(pose: Union[List, Pose, PoseStamped]) -> PoseStamped:
+def convert_to_pose_msg(node, pose: Union[List, Pose, PoseStamped], frame_id=None) -> PoseStamped:
     if isinstance(pose, PoseStamped):
         pose_out = pose
     elif isinstance(pose, Pose):
         pose_out = PoseStamped()
         pose_out.pose = pose
-        pose_out.header.stamp = rospy.Time.now()
+        pose_out.header.stamp = node.get_clock().now().to_msg()
+    elif isinstance(pose, Transform):
+        pose_out = PoseStamped()
+        pose_out.header.stamp = node.get_clock().now().to_msg()
+        pose_out.pose.position.x = pose.translation.x
+        pose_out.pose.position.y = pose.translation.y
+        pose_out.pose.position.z = pose.translation.z
+        pose_out.pose.orientation = pose.rotation
     elif isinstance(pose, list):
         if len(pose) == 6:
             pose_out = PoseStamped()
-            pose_out.header.stamp = rospy.Time.now()
+            pose_out.header.stamp = node.get_clock().now().to_msg()
             pose_out.pose.position.x = pose[0]
             pose_out.pose.position.y = pose[1]
             pose_out.pose.position.z = pose[2]
-            q = quaternion_from_euler(pose[3], pose[4], pose[5])
+            q = euler2quat(pose[3], pose[4], pose[5])
             pose_out.pose.orientation.x = q[0]
             pose_out.pose.orientation.y = q[1]
             pose_out.pose.orientation.z = q[2]
             pose_out.pose.orientation.w = q[3]
         elif len(pose) == 7:
             pose_out = PoseStamped()
-            pose_out.header.stamp = rospy.Time.now()
+            pose_out.header.stamp = node.get_clock().now().to_msg()
             pose_out.pose.position.x = pose[0]
             pose_out.pose.position.y = pose[1]
             pose_out.pose.position.z = pose[2]
-            pose_out.pose.orientation.x = pose[3]
-            pose_out.pose.orientation.y = pose[4]
-            pose_out.pose.orientation.z = pose[5]
-            pose_out.pose.orientation.w = pose[6]
+            q = np.array(pose[3:7])
+            q /= np.linalg.norm(q)
+            pose_out.pose.orientation.x = q[0]
+            pose_out.pose.orientation.y = q[1]
+            pose_out.pose.orientation.z = q[2]
+            pose_out.pose.orientation.w = q[3]
         else:
             raise ValueError("pose as a list must be either x,y,z,r,p,y or x,y,z,qz,qy,qz,qw")
     else:
         raise NotImplementedError("cannot convert from type {}".format(type(pose)))
-
+    if frame_id:
+        pose_out.header.frame_id = frame_id
     return pose_out
 
 
