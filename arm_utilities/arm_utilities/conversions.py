@@ -48,7 +48,7 @@ def normalize_quaternion(quaternion: Union[List[int], Quaternion]):
         raise NotImplementedError()
 
 
-def convert_to_pose_msg(node, pose: Union[List, Pose, PoseStamped], frame_id=None) -> PoseStamped:
+def convert_to_pose_msg(node, pose: Union[List, Pose, PoseStamped, Transform], frame_id=None) -> PoseStamped:
     if isinstance(pose, PoseStamped):
         pose_out = pose
     elif isinstance(pose, Pose):

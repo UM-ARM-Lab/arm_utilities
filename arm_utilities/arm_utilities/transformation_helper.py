@@ -55,7 +55,7 @@ def build_mat(translation, quaternion):
     @return: 4x4 numpy array
     """
     mat = np.eye(4)
-    mat[0:3, 0:3] = quat2mat(quaternion)
+    mat[0:3, 0:3] = quat2mat(np.roll(quaternion, 1))
     mat[0:3, 3] = translation
     return mat
 
@@ -86,4 +86,5 @@ def extract_from_matrix(mat):
     """
     translation = mat[0:3, 3]
     quaternion = mat2quat(mat[0:3, 0:3])
+    quaternion = np.roll(quaternion, -1).tolist()
     return translation, quaternion

@@ -114,9 +114,9 @@ class TF2Wrapper:
         t.header.stamp = time
         t.header.frame_id = parent
         t.child_frame_id = child
-        t.transform.translation.x = translation[0]
-        t.transform.translation.y = translation[1]
-        t.transform.translation.z = translation[2]
+        t.transform.translation.x = float(translation[0])
+        t.transform.translation.y = float(translation[1])
+        t.transform.translation.z = float(translation[2])
         t.transform.rotation.x = quaternion[0]
         t.transform.rotation.y = quaternion[1]
         t.transform.rotation.z = quaternion[2]
