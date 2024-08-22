@@ -1,6 +1,8 @@
+from typing import Union
+
 import numpy as np
 from transforms3d.quaternions import quat2mat, mat2quat
-from geometry_msgs.msg import Transform
+from geometry_msgs.msg import Transform, Pose
 
 
 def np_tf_inv(mat):
@@ -70,14 +72,17 @@ def build_mat_from_transform(transform: Transform):
     return build_mat(translation, quaternion)
 
 
-def get_vec7_from_transform(transform: Transform):
+def get_vec7_from_transform(transform: Union[Transform, Pose]):
     """
     @param transform: geometry_msgs.msg.Transform
     @return: list of [x, y, z, qx, qy, qz, qw]
     """
-    return [transform.translation.x, transform.translation.y, transform.translation.z,
-            transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w]
-
+    if isinstance(transform, Transform):
+        return [transform.translation.x, transform.translation.y, transform.translation.z,
+                transform.rotation.x, transform.rotation.y, transform.rotation.z, transform.rotation.w]
+    elif isinstance(transform, Pose):
+        return [transform.position.x, transform.position.y, transform.position.z,
+                transform.orientation.x, transform.orientation.y, transform.orientation.z, transform.orientation.w]
 
 def extract_from_matrix(mat):
     """

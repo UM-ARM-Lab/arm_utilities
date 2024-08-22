@@ -57,7 +57,7 @@ class TF2Wrapper:
             transform = self.tf_buffer.lookup_transform(target_frame=parent, source_frame=child, time=time)
         else:
             transform = None
-            logger.info("No transform available: %s to %s" %(parent, child))
+            logger.info("No transform available: %s to %s" % (parent, child))
         return transform
 
     def send_transform_matrix(self, transform, parent, child, is_static=False, time=None):
